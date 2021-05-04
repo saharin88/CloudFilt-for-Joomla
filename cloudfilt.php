@@ -63,7 +63,7 @@ class PlgSystemCloudfilt extends CMSPlugin
 
     public function onContentPrepareForm(Joomla\CMS\Form\Form $form)
     {
-        if (($form->getName() === 'com_plugins.plugins.filter' || $form->getName() === 'com_installer.manage.filter'))
+        if ($form->getName() === 'com_plugins.plugins.filter' || $form->getName() === 'com_installer.manage.filter')
         {
             try
             {
@@ -97,7 +97,10 @@ class PlgSystemCloudfilt extends CMSPlugin
 
     protected function checkCredentials()
     {
+        $this->checkEmptyKeys();
+
         $key_site = $this->getKeySite($this->params->get('key_front'), $this->params->get('key_back'));
+
         if ($key_site !== $this->params->get('key_site'))
         {
             $table = new Extension($this->db);
@@ -105,6 +108,23 @@ class PlgSystemCloudfilt extends CMSPlugin
             {
                 $this->bindTableKeySiteParam($table, $key_site);
             }
+        }
+    }
+
+    protected function checkEmptyKeys()
+    {
+        $key_front = $this->params->get('key_front');
+
+        if (empty($key_front))
+        {
+            throw new Exception('Empty front key');
+        }
+
+        $key_back  = $this->params->get('key_back');
+
+        if (empty($key_back))
+        {
+            throw new Exception('Empty back key');
         }
     }
 
