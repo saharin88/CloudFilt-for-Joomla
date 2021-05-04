@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="plugin" group="system" method="upgrade">
+    <name>plg_system_cloudfilt</name>
+    <author>Dmytro Sakharuk</author>
+    <creationDate>May 2021</creationDate>
+    <authorEmail>contact@joomla.work</authorEmail>
+    <authorUrl>https://joom.work/</authorUrl>
+    <version>1.0.0</version>
+    <description>PLG_SYSTEM_CLOUDFILT_XML_DESCRIPTION</description>
+
+    <files>
+        <filename plugin="cloudfilt">cloudfilt.php</filename>
+    </files>
+
+    <languages>
+        <language tag="en-GB">language/en-GB/en-GB.plg_system_cloudfilt.ini</language>
+        <language tag="en-GB">language/en-GB/en-GB.plg_system_cloudfilt.sys.ini</language>
+    </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+
+                <field
+                        name="note"
+                        type="spacer"
+                        label="PLG_SYSTEM_CLOUDFILT_NOTE_DESC"
+                />
+
+                <field
+                        name="key_front"
+                        type="text"
+                        label="PLG_SYSTEM_CLOUDFILT_KEY_FRONT_LABEL"
+                        required="true"
+                        maxlength="64"
+                        size="64"
+                />
+
+                <field
+                        name="key_back"
+                        type="text"
+                        label="PLG_SYSTEM_CLOUDFILT_KEY_BACK_LABEL"
+                        required="true"
+                        maxlength="64"
+                        size="64"
+                />
+
+                <field
+                        name="roles_exclude"
+                        type="radio"
+                        label="PLG_SYSTEM_CLOUDFILT_ROLES_EXCLUDE_LABEL"
+                        class="btn-group btn-group-yesno"
+                        default="0"
+                >
+                    <option value="1">JON</option>
+                    <option value="0">JOFF</option>
+                </field>
+
+                <field
+                        name="roles"
+                        type="usergrouplist"
+                        label="PLG_SYSTEM_CLOUDFILT_ROLES_LABEL"
+                        showon="roles_exclude:1"
+                        multiple="true"
+                />
+
+                <field
+                        type="hidden"
+                        name="key_site"
+                />
+
+            </fieldset>
+        </fields>
+    </config>
+
+</extension>
