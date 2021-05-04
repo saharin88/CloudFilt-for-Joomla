@@ -11,7 +11,7 @@ use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Table\Extension;
 
-class PlgSystemCloudfilt extends CMSPlugin
+class PlgSystemCloudFilt extends CMSPlugin
 {
 
     /**
@@ -33,30 +33,27 @@ class PlgSystemCloudfilt extends CMSPlugin
     protected $autoloadLanguage = true;
 
 
-    public function onAfterInitialise()
+    public function onAfterRoute()
     {
-        if ($this->app->isClient('site') && $this->checkRolesExclude() === false)
+        if ($this->checkComponentExclude() === false && $this->checkRoleExclude() === false)
         {
             $this->filterRequest();
             $this->addScriptToThePage();
         }
     }
 
-    public function onExtensionBeforeSave(string $context, Extension $table, bool $isNew, array $data)
+    public function onExtensionAfterSave(string $context, Extension $table)
     {
-        if ($context === 'com_plugins.plugin' && $data['element'] === 'cloudfilt')
+        if ($context === 'com_plugins.plugin' && $table->get('element') === 'cloudfilt')
         {
             try
             {
-                $key_site = $this->getKeySite($data['params']['key_front'], $data['params']['key_back']);
-                $this->bindTableKeySiteParam($table, $key_site);
+                $this->checkCredentials();
             }
             catch (Exception $e)
             {
-                $this->turnOffPlugin($data['extension_id']);
-                $table->setError($e->getMessage());
-
-                return false;
+                $this->disablePlugin($table->get('extension_id'));
+                $this->enqueueDisabledMsg($e->getMessage());
             }
         }
     }
@@ -71,8 +68,9 @@ class PlgSystemCloudfilt extends CMSPlugin
             }
             catch (Exception $e)
             {
-                $this->turnOffPlugin(['element' => $this->_name]);
-                $this->reloadPageAndShowTurnOffMsg();
+                $this->disablePlugin(['element' => $this->_name]);
+                $this->enqueueDisabledMsg($e->getMessage());
+                $this->reloadPage();
             }
         }
     }
@@ -117,29 +115,50 @@ class PlgSystemCloudfilt extends CMSPlugin
 
         if (empty($key_front))
         {
-            throw new Exception('Empty front key');
+            throw new Exception('Empty front key.');
         }
 
-        $key_back  = $this->params->get('key_back');
+        $key_back = $this->params->get('key_back');
 
         if (empty($key_back))
         {
-            throw new Exception('Empty back key');
+            throw new Exception('Empty back key.');
         }
     }
 
-    protected function checkRolesExclude(): bool
+    protected function checkComponentExclude()
     {
-        $roles_exclude = $this->params->get('roles_exclude', '0');
+        $components = $this->params->get('component_exclude', []);
 
-        if ($roles_exclude === '0')
+        if (count($components) === 0)
+        {
+            return false;
+        }
+
+        $option = $this->app->input->get('option');
+
+        if (in_array($option, $components))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    protected function checkRoleExclude(): bool
+    {
+        $roles = $this->params->get('role_exclude', []);
+
+        if (count($roles) === 0)
         {
             return false;
         }
 
         $user             = Factory::getUser();
         $groups           = $user->get('groups');
-        $roles            = $this->params->get('roles', []);
         $intersect_result = array_intersect($roles, $groups);
 
         if (count($intersect_result) === 0)
@@ -162,7 +181,7 @@ class PlgSystemCloudfilt extends CMSPlugin
             'URL' => Uri::getInstance()->__toString(),
         ]);
 
-        if (!empty($response) && $response !== 'OK')
+        if (empty($response['error']) && !empty($response['body']) && $response['body'] !== 'OK')
         {
             $this->app->redirect('https://cloudfilt.com/stop-' . $user_ip . '-' . $this->params->get('key_front'));
         }
@@ -172,7 +191,12 @@ class PlgSystemCloudfilt extends CMSPlugin
     {
         $response = $this->request('https://api.cloudfilt.com/checkcms/joomla.php', compact('key_front', 'key_back'));
 
-        $result = json_decode($response, true);
+        if (!empty($response['error']))
+        {
+            throw new Exception(Text::_('PLG_SYSTEM_CLOUDFILT_CONNECTION_FAILED_MSG'));
+        }
+
+        $result = json_decode($response['body'], true);
 
         if (isset($result['status']))
         {
@@ -189,16 +213,20 @@ class PlgSystemCloudfilt extends CMSPlugin
         }
     }
 
-    protected function turnOffPlugin($key)
+    protected function disablePlugin($key)
     {
         $table = new Extension($this->db);
         $table->load($key);
         $table->save(['enabled' => 0]);
     }
 
-    protected function reloadPageAndShowTurnOffMsg()
+    protected function enqueueDisabledMsg(string $message)
     {
-        $this->app->enqueueMessage(Text::_('PLG_SYSTEM_CLOUDFILT_TURN_OFF_MSG'), 'error');
+        $this->app->enqueueMessage(Text::sprintf('PLG_SYSTEM_CLOUDFILT_DISABLED_MSG', $message), 'warning');
+    }
+
+    protected function reloadPage()
+    {
         $this->app->redirect(Uri::getInstance()->toString());
     }
 
@@ -226,10 +254,11 @@ class PlgSystemCloudfilt extends CMSPlugin
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1000);
-        $response = curl_exec($ch);
+        $body  = curl_exec($ch);
+        $error = curl_error($ch);
         curl_close($ch);
 
-        return $response;
+        return compact('body', 'error');
     }
 
 }

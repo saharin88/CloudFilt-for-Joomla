@@ -1,1 +1,1 @@
-<a target="_blank" href="https://cloudfilt.com/">CloudFilt</a> for Joomla.
+<a target="_blank" href="https://cloudfilt.com/">CloudFilt</a> did not pay me for this extension. Not for use.

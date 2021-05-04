@@ -46,21 +46,19 @@
                 />
 
                 <field
-                        name="roles_exclude"
-                        type="radio"
-                        label="PLG_SYSTEM_CLOUDFILT_ROLES_EXCLUDE_LABEL"
-                        class="btn-group btn-group-yesno"
-                        default="0"
-                >
-                    <option value="1">JON</option>
-                    <option value="0">JOFF</option>
-                </field>
+                        name="role_exclude"
+                        type="usergrouplist"
+                        label="PLG_SYSTEM_CLOUDFILT_ROLE_EXCLUDE_LABEL"
+                        multiple="true"
+                />
 
                 <field
-                        name="roles"
-                        type="usergrouplist"
-                        label="PLG_SYSTEM_CLOUDFILT_ROLES_LABEL"
-                        showon="roles_exclude:1"
+                        name="component_exclude"
+                        type="sql"
+                        label="PLG_SYSTEM_CLOUDFILT_COMPONENT_EXCLUDE_LABEL"
+                        query="SELECT DISTINCT element FROM #__extensions WHERE type = 'component' AND enabled = 1"
+                        key_field="element"
+                        value_field="element"
                         multiple="true"
                 />
 
