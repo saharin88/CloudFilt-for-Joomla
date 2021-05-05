@@ -54,9 +54,7 @@ class PlgSystemCloudFilt extends CMSPlugin
 			}
 			catch (Exception $e)
 			{
-				$this->disablePlugin(['element' => $this->_name]);
-				$this->enqueueDisabledMsg($e->getMessage());
-				$this->reloadPage();
+				$this->disablePlgReloadPageShowMsg($e->getMessage());
 			}
 		}
 	}
@@ -110,6 +108,13 @@ class PlgSystemCloudFilt extends CMSPlugin
 		{
 			throw new Exception('Empty back key.');
 		}
+	}
+
+	protected function disablePlgReloadPageShowMsg(string $message)
+	{
+		$this->disablePlugin(['element' => $this->_name]);
+		$this->enqueueDisabledMsg($message);
+		$this->reloadPage();
 	}
 
 	protected function checkComponentExclude()
