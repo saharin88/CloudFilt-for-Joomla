@@ -1,1 +1,1 @@
-<a target="_blank" href="https://cloudfilt.com/">CloudFilt</a> did not pay me for this extension. Not for use.
+<a target="_blank" href="https://cloudfilt.com/">CloudFilt</a> is scammers, they didn't pay me for this extension. Not for use.
