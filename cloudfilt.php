@@ -86,28 +86,28 @@ class PlgSystemCloudFilt extends CMSPlugin
         );
     }
 
-    protected function bindTableKeySiteParam(Extension $table, string $key_site)
-    {
-        $params             = (new Registry($table->get('params')))->toArray();
-        $params['key_site'] = $key_site;
-        $table->bind(compact('params'));
-    }
+	protected function checkCredentials()
+	{
+		$this->checkEmptyKeys();
 
-    protected function checkCredentials()
-    {
-        $this->checkEmptyKeys();
+		$key_site = $this->getKeySite($this->params->get('key_front'), $this->params->get('key_back'));
 
-        $key_site = $this->getKeySite($this->params->get('key_front'), $this->params->get('key_back'));
+		if ($key_site !== $this->params->get('key_site'))
+		{
+			$this->updateKeySiteParam($key_site);
+		}
+	}
 
-        if ($key_site !== $this->params->get('key_site'))
-        {
-            $table = new Extension($this->db);
-            if ($table->load(['element' => $this->_name]))
-            {
-                $this->bindTableKeySiteParam($table, $key_site);
-            }
-        }
-    }
+	protected function updateKeySiteParam(string $key_site)
+	{
+		$table = new Extension($this->db);
+		if ($table->load(['element' => $this->_name]))
+		{
+			$params             = (new Registry($table->get('params')))->toArray();
+			$params['key_site'] = $key_site;
+			$table->save(compact('params'));
+		}
+	}
 
     protected function checkEmptyKeys()
     {
