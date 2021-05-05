@@ -183,7 +183,7 @@ class PlgSystemCloudFilt extends CMSPlugin
 
         if (empty($response['error']) && !empty($response['body']) && $response['body'] !== 'OK')
         {
-            $this->app->redirect('https://cloudfilt.com/stop-' . $user_ip . '-' . $this->params->get('key_front'));
+            $this->app->redirect('https://cloudfilt.com/stop-' . $user_ip . '-' . $this->params->get('key_front'), 307);
         }
     }
 
