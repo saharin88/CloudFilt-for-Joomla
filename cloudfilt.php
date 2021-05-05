@@ -112,7 +112,7 @@ class PlgSystemCloudFilt extends CMSPlugin
 
 	protected function disablePlgReloadPageShowMsg(string $message)
 	{
-		$this->disablePlugin(['element' => $this->_name]);
+		$this->disablePlugin();
 		$this->enqueueDisabledMsg($message);
 		$this->reloadPage();
 	}
@@ -204,10 +204,10 @@ class PlgSystemCloudFilt extends CMSPlugin
 		}
 	}
 
-	protected function disablePlugin($key)
+	protected function disablePlugin()
 	{
 		$table = new Extension($this->db);
-		if ($table->load($key))
+		if ($table->load(['element' => $this->_name]))
 		{
 			$params = (new Registry($table->get('params')))->toArray();
 			unset($params['key_site']);
