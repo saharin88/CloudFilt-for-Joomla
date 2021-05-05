@@ -44,7 +44,7 @@ class PlgSystemCloudFilt extends CMSPlugin
 
 	public function onContentPrepareForm(Joomla\CMS\Form\Form $form, $data)
 	{
-		if (($form->getName() === 'com_plugins.plugin' && isset($data->extension_id) && $data->element === 'cloudfilt')
+		if (($form->getName() === 'com_plugins.plugin' && isset($data->element) && $data->element === 'cloudfilt')
 			|| $form->getName() === 'com_plugins.plugins.filter'
 			|| $form->getName() === 'com_installer.manage.filter')
 		{
